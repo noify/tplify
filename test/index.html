@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>tplify</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script id="example" type="text/html">
+      <div id="main" :class="data.weight>0">
+        我喜欢吃
+        <ul t-if="data.weight < 140">
+          <li t-for="item in data.food">
+            大{{ item }}
+          </li>
+        </ul>
+        <span t-else>西北风</span>
+      </div>
+    </script>
+    <script src="../src/tplify.js"></script>
+    <script>
+       var data = {weight: 139, food: ['鸡腿', '猪蹄']}
+       var content = document.getElementById('example').innerHTML
+       var result = tplify(content, data)
+       document.getElementById('app').innerHTML = result
+    </script>
+  </body>
+</html>
