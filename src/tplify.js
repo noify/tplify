@@ -40,11 +40,11 @@
                 list.push(txt);
             }
             else {  // 如果是js代码
-                var str = item.txt
-                list.push(str)
-                if(str.indexOf('else') != -1){
-                    list[i] = list[i+1]
-                    list[i+1]  = str
+                var text = item.txt
+                list.push(text)
+                if(text.indexOf('else') != -1){
+                    list[i+1]  = list[i]
+                    list[i] = text
                 }
             }
         }
