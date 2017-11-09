@@ -1,8 +1,16 @@
 # tplify
 
 简易模板引擎
+[![NPM version](https://img.shields.io/npm/v/tpl-js.svg)](https://www.npmjs.com/package/tpl-js)
 
-# 如何使用?
+# 安装
+
+```bash
+$ npm install --save tpl-js
+```
+或直接使用`build/tplify.min.js`
+
+# 使用
 
 在`<% %>`中编写js代码，使用`{{ }}`赋值，`{{= }}`也能赋值，但会渲染html。
 
