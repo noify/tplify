@@ -1,7 +1,7 @@
 {
   "name": "tplify",
-  "version": "0.0.1",
-  "description": "A simple template engine.",
+  "version": "0.0.2",
+  "description": "Simple template engine",
   "main": "build/tplify.js",
   "directories": {
     "test": "test"
