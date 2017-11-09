@@ -1,15 +1,38 @@
 # tplify
 
-正在编写的简易模板引擎
+简易模板引擎
 
-# 待完成及待修复
+# 如何使用?
 
-- 正则错误
+在`<% %>`中编写js代码，使用`{{ }}`赋值，`{{= }}`也能赋值，但会渲染html。
 
-- :属性绑定错误
+```js
+let content =`
+<ul>
+    <% for(var i=0; i < data.length; i++){
+        var item = data[i];
+        if(item.weight < 140){%>
+            <li>我是{{item.name}}，我喜欢吃大{{item.food}}</li>
+        <%}else{%>
+            <li>我是{{=item.name}}，我喜欢喝西北风</li>
+        <%}%>
+    <% } %>
+</ul>`
+let data = [
+    { name: '小红', weight: 132, food: '鸡腿' }, 
+    { name: '明明<p></p>', weight: 139, food: '猪蹄' }, 
+    { name: '<b>楚楚</b>', weight: 141, food: '烧鸭' }
+];
+let result = tplify(content, data)
+```
+```html
+<ul>
 
-- 新增功能
+    <li>我是小红，我喜欢吃大鸡腿</li>
 
-- 优化
+    <li>我是明明&lt;p&gt;&lt;/p&gt;，我喜欢吃大猪蹄</li>
 
-- 其他
+    <li>我是<b>楚楚</b>，我喜欢喝西北风</li>
+
+</ul>
+```

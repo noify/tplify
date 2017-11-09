@@ -1,28 +1,34 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>tplify</title>
-  </head>
-  <body>
+</head>
+<body>
     <div id="app"></div>
-    <script id="example" type="text/html">
-      <div id="main" :class="data.weight>0">
-        我喜欢吃
-        <ul t-if="data.weight < 140">
-          <li t-for="item in data.food">
-            大{{ item }}
-          </li>
-        </ul>
-        <span t-else>西北风</span>
-      </div>
+    <script id="content" type="text/html">
+      <ul>
+          <% for(var i=0; i < data.length; i++){
+              var item = data[i];
+              if(item.weight < 140){%>
+                  <li>我是{{item.name}}，我喜欢吃大{{item.food}}</li>
+              <%}else{%>
+                  <li>我是{{=item.name}}，我喜欢喝西北风</li>
+              <%}%>
+          <% } %>
+      </ul>
     </script>
     <script src="../src/tplify.js"></script>
     <script>
-       var data = {weight: 139, food: ['鸡腿', '猪蹄']}
-       var content = document.getElementById('example').innerHTML
-       var result = tplify(content, data)
-       document.getElementById('app').innerHTML = result
+        var data = [
+          { name: '小红', weight: 132, food: '鸡腿' }, 
+          { name: '明明<p></p>', weight: 139, food: '猪蹄' }, 
+          { name: '<b>楚楚</b>', weight: 141, food: '烧鸭' }
+        ];
+        var content  = document.getElementById('content').innerHTML;
+        document.getElementById('app').innerHTML = tplify(content, data);
     </script>
-  </body>
+</body>
 </html>

@@ -1,20 +1,8 @@
 (function (global, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD
-        define(factory)
-    } else if (typeof exports === 'object') {
-        // Node, CommonJS-like
-        // es6 module , typescript
-        var tplify = factory()
-        tplify.__esModule = true
-        tplify['default'] = tplify
-        module.exports = tplify
-    } else {
-        // browser
-        global.tplify = factory()
-    }
-}(this, function () {
-    var list = ['var tpl = "";']
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+      typeof define === 'function' && define.amd ? define(factory) :
+        (global.tplify = factory());
+  }(this, function () {
     /**
      * 模板 + 数据 => 渲染后的字符串
      * 
@@ -22,309 +10,84 @@
      * @param {any} data 数据
      * @returns 渲染后的字符串
      */
-    function render(tpl, data){
-        data = data || {}
-        $tpl = generalDom(tpl)
-        tpl = this.$tpl.outerHTML;
-        $ast = parse(tpl)
+    function render(content, data) {
+        data = data || {};
         var list = ['var tpl = "";'];
-        var codeArr = transform($ast[0])
+        var codeArr = transform(content);
+
         for (var i = 0, len = codeArr.length; i < len; i++) {
-            var item = codeArr[i]; // 当前分割项
-            // 如果是文本类型，或者js占位项
+            var item = codeArr[i];
+
             if (!item.type) {
+                
                 var txt = 'tpl+="' +
-                    item.replace(/{{(.*?)}}/g, function (g0, g1) {
+                    item.txt.replace(/{{=(.*?)}}/g, function (g0, g1) {
                         return '"+' + g1 + '+"';
+                    }).replace(/{{(.*?)}}/g, function (g0, g1) {
+                        return '"+_e(' + g1 + ')+"';
                     }) + '"';
                 list.push(txt);
             }
-            else {  // 如果是js代码
-                var text = item.txt
-                list.push(text)
-                if(text.indexOf('else') != -1){
-                    list[i+1]  = list[i]
-                    list[i] = text
-                }
+            else {
+                list.push(item.txt);
             }
         }
-        list.push('return tpl;')
-        return new Function('data', list.join('\n'))(data)
+        list.push('return tpl;');
+        return new Function('data','_e', list.join('\n'))(data, escape);
     }
 
-    function generalDom(domStr){
-        if (domStr instanceof Object) {
-            return domStr
+    /**
+     * 从原始模板中提取 文本/js 部分
+     * 
+     * @param {string} content 
+     * @returns {Array<{type:number,txt:string}>} 
+     */
+    function transform(content) {
+        var arr = [];                 //返回的数组，用于保存匹配结果
+        var reg = /<%(?!=)([\s\S]*?)%>/g;  //用于匹配js代码的正则
+        var match;   				  //当前匹配到的match
+        var nowIndex = 0;			  //当前匹配到的索引        
+
+        while (match = reg.exec(content)) {
+            // 保存当前匹配项之前的普通文本/占位
+            appendTxt(arr, content.substring(nowIndex, match.index));
+            //保存当前匹配项
+            arr.push({
+                type: 1,  //js代码
+                txt: match[1]  //匹配到的内容
+            });
+            //更新当前匹配索引
+            nowIndex = match.index + match[0].length;
         }
-
-        var $temp = document.createElement("div")
-        $temp.innerHTML = domStr.trim() //不然会有多余的空格等东西
-        return $temp.childNodes[0]
-    }
-    ////////////////////////////////////AST
-    var dsl_prefix = "t-"
-    var dslMap = {
-        "t-for": 1,
-        "t-if": 1,
-        "t-else": 1,
-        "t-else-if": 1,
-        "t-bind": 0,
-        "t-html": 0,
-        "t-show": 0,
-        "t-on": 0,
-    }
-    ////////////////parse-tag
-    var attrRE = /([:\w-]+)|['"]{1}([^'"]*)['"]{1}/g
-
-    var lookup = (Object.create) ? Object.create(null) : {};
-    lookup.area = true;
-    lookup.base = true;
-    lookup.br = true;
-    lookup.col = true;
-    lookup.embed = true;
-    lookup.hr = true;
-    lookup.img = true;
-    lookup.input = true;
-    lookup.keygen = true;
-    lookup.link = true;
-    lookup.menuitem = true;
-    lookup.meta = true;
-    lookup.param = true;
-    lookup.source = true;
-    lookup.track = true;
-    lookup.wbr = true;
-    
-    function parseTag (tag) {
-        var i = 0;
-        var key;
-        var res = {
-            type: 'tag',
-            name: '',
-            voidElement: false,
-            attrs: {},
-            children: [],
-            dsl: []
-        };
-    
-        tag.replace(attrRE, function (match) {
-    
-            if (dslMap[match]) {
-               res.dsl.push(match);
-            }
-    
-            if (i % 2) {
-                key = match;
-            } else {
-                if (i === 0) {
-                    if (lookup[match] || tag.charAt(tag.length - 2) === '/') {
-                        res.voidElement = true;
-                    }
-                    res.name = match;
-                } else {
-                    res.attrs[key] = match.replace(/['"]/g, '');
-                }
-            }
-            i++;
-        });
-    
-        return res;
+        //保存文本尾部
+        appendTxt(arr, content.substr(nowIndex));
+        return arr;
     }
 
-    ///////////////////parse
-    var tagRE = /<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g // bug <p><p></p></p>
-
-    var empty = Object.create ? Object.create(null) : {};
-    
-    function parse (html, options) {
-        options || (options = {});
-        options.components || (options.components = empty);
-        var result = [];
-        var current;
-        var level = -1;
-        var arr = [];
-        var byTag = {};
-        var inComponent = false;
-    
-        html.replace(tagRE, function (tag, index) {
-            if (inComponent) {
-                if (tag !== ('</' + current.name + '>')) {
-                    return;
-                } else {
-                    inComponent = false;
-                }
-            }
-            var isOpen = tag.charAt(1) !== '/';
-            var start = index + tag.length;
-            var nextChar = html.charAt(start);
-            var parent;
-    
-            if (isOpen) {
-                level++;
-    
-                current = parseTag(tag)
-                // options.components相关 未知
-                if (current.type === 'tag' && options.components[current.name]) {
-                    current.type = 'component';
-                    inComponent = true;
-                }
-                // 不是voidElement节点 有下一个字节且不是<
-                // 增加子text节点
-                if (!current.voidElement && !inComponent && nextChar) { //  && nextChar !== '<'
-                    current.children.push({
-                        type: 'text',
-                        content: html.slice(start, html.indexOf('<', start)),
-                        parent: current
-                    });
-                }
-
-                // 无效 未知作用
-                byTag[current.tagName] = current;
-    
-                // if we're at root, push new base node
-                if (level === 0) {
-                    result.push(current);
-                }
-    
-                parent = arr[level - 1];
-
-                // 有父节点且父节点有子节点
-                // 关联 父子同胞节点 的关系
-                if (parent) { // && parent.children.length add && parent.children.length
-                    current.prev = parent.children[parent.children.length - 1]
-                    parent.children[parent.children.length - 1].next = current
-                    parent.children.push(current)
-                    current.parent = parent
-                }
-    
-                arr[level] = current;
-            }
-    
-            if (!isOpen || current.voidElement) {
-                level--;
-                // 下一个字节不是< 且有下一个字节
-                if (!inComponent && nextChar !== '<' && nextChar) {
-                    // trailing text node
-                    arr[level].children.push({
-                        type: 'text',
-                        content: html.slice(start, html.indexOf('<', start)),
-                        parent: arr[level]
-                    });
-                }
-            }
-        })
-    
-        return result;
+    /**
+     * 普通文本添加到数组，对换行部分进行转义
+     * 
+     * @param {Array<{type:number,txt:string}>} list 
+     * @param {string} content 
+     */
+    function appendTxt(list, content) {
+        content = content.replace(/\r?\n/g, "\\n");
+        list.push({ txt: content });
     }
 
-    function transform(ast){
-        var list = []
-        if (ast.dsl && ast.dsl.length) { //存在 dsl
-            //dsl 优先级 if > for > html
-            var $sdlTemp = ""
-            var dslIndex
-            if ((dslIndex = ast.dsl.indexOf("t-for")) !== -1) { //先判断 for 语句
-                var reg = /([\w\W]+) in ([\w\W]+)/,
-                    result = ast.attrs["t-for"].match(reg)
-                    list.push({
-                        type: 1,  //js代码
-                        txt: 'for(var i in '+ result[2] +'){var '+ result[1] +'='+ result[2] +'[i];'  //匹配到的内容
-                    })
-
-                // 删除dsl
-                ast.dsl.splice(dslIndex, 1)
-                delete ast.attrs["t-for"]
-
-                list = list.concat(transform(ast))
-
-                list.push({
-                    type: 1,  //js代码
-                    txt: '}'  //匹配到的内容
-                })
-                return list
-
-            }else if ((dslIndex = ast.dsl.indexOf("t-if")) !== -1) { //先判断 if 语句
-                var itemName = ast.attrs["t-if"] // 现在只判断了值，没有进行表达式判断
-
-                list.push({
-                    type: 1,  //js代码
-                    txt: 'if('+ ast.attrs["t-if"] +'){'  //匹配到的内容
-                })
-
-
-                // 删除dsl
-                ast.dsl.splice(dslIndex, 1)
-                delete ast.attrs["t-if"]
-                list = list.concat(transform(ast))
-
-                list.push({
-                    type: 1,  //js代码
-                    txt: '}'  //匹配到的内容
-                })
-
-                return list
-            }else if ((dslIndex = ast.dsl.indexOf("t-else-if")) !== -1) { //先判断 else if 语句
-                list.push({
-                    type: 1,  //js代码
-                    txt: 'else if('+ ast.attrs["t-else-if"] +'){'  //匹配到的内容
-                })
-
-
-                // 删除dsl
-                ast.dsl.splice(dslIndex, 1)
-                delete ast.attrs["t-else-if"]
-                list = list.concat(transform(ast))
-
-                list.push({
-                    type: 1,  //js代码
-                    txt: '}'  //匹配到的内容
-                })
-
-                return list
-            }else if ((dslIndex = ast.dsl.indexOf("t-else")) !== -1) { //先判断 else 语句
-                list.push({
-                    type: 1,  //js代码
-                    txt: 'else{'  //匹配到的内容
-                })
-
-
-                // 删除dsl
-                ast.dsl.splice(dslIndex, 1)
-                delete ast.attrs["t-else"]
-                list = list.concat(transform(ast))
-
-                list.push({
-                    type: 1,  //js代码
-                    txt: '}'  //匹配到的内容
-                })
-
-                return list
-            }
-        }
-        if(ast.type === 'tag'){
-            list.push('<'+ast.name+'')
-            for (var key in ast.attrs) {
-                var value = ast.attrs[key]
-                
-                if(key.charAt(0) === ':'){ // bug true &&
-                    key = key.substr(1)
-                    value = wrapStr(''+value)
-                }
-                list.push(' '+key+'=\''+value+'\'')
-            }
-            list.push('>')
-            for(i in ast.children){
-                list = list.concat(transform(ast.children[i]))
-            }
-            !ast.voidElement && list.push('</'+ast.name+'>')
-            return list
-        }else if(ast.type === 'text'){
-            list.push(ast.content.replace(/\r?\n/g, "")) // \\n
-            return list
-        }
+    /**
+     * 对字符实体进行转义
+     * 
+     * @param {string} html 
+     * @returns {string} 
+     */
+    function escape(html) {
+        return String(html)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/'/g, '&#39;')
+            .replace(/"/g, '&quot;');
     }
-
-    function wrapStr(str){
-        return '"+'+ str +'+"'
-    }
-    return render
-}))
+    return render;
+}));
