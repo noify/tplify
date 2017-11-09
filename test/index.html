@@ -13,9 +13,9 @@
           <% for(var i=0; i < data.length; i++){
               var item = data[i];
               if(item.weight < 140){%>
-                  <li class="low" data-weight='140'>我是"{{item.name}}，我喜欢吃大{{item.food}}</li>
+                  <li class="low" data-weight='140'>我是{{item.name}}，我喜欢吃大{{item.food}}</li>
               <%}else{%>
-                  <li class="{{item.weight}}" data-weight={{item.weight}}>我是'{{=item.name}}，我喜欢喝西北风</li>
+                  <li class="{{item.weight && 0}}" data-weight={{item.weight}}>我是'"{{= "<b>徐</b>" + '<b>小</b>' + item.name}}，我喜欢喝西北风</li>
               <%}%>
           <% } %>
       </ul>

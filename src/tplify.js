@@ -26,9 +26,9 @@
                     }).replace(/>(.*?)</g, function (g0, g1) {
                         return g0.replace(/"/g, '&quot;');
                     }).replace(/{{=(.*?)}}/g, function (g0, g1) {
-                        return '"+' + g1 + '+"';
+                        return '"+' + g1.replace(/&quot;/g, '"') + '+"';
                     }).replace(/{{(.*?)}}/g, function (g0, g1) {
-                        return '"+_e(' + g1 + ')+"';
+                        return '"+_e(' + g1.replace(/&quot;/g, '"') + ')+"';
                     }) + '"';
                 list.push(txt);
             }
