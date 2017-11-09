@@ -1,7 +1,8 @@
 # tplify
 
-简易模板引擎
 [![NPM version](https://img.shields.io/npm/v/tpl-js.svg)](https://www.npmjs.com/package/tpl-js)
+
+简易模板引擎
 
 # 安装
 
