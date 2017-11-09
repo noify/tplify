@@ -8,7 +8,11 @@
         for (var i = 0, len = codeArr.length; i < len; i++) {
             var item = codeArr[i];
             if (!item.type) {
-                var txt = 'tpl+="' + item.txt.replace(/{{=(.*?)}}/g, function(g0, g1) {
+                var txt = 'tpl+="' + item.txt.replace(/<(.*?)>/g, function(g0, g1) {
+                    return g0.replace(/"/g, "'");
+                }).replace(/>(.*?)</g, function(g0, g1) {
+                    return g0.replace(/"/g, "&quot;");
+                }).replace(/{{=(.*?)}}/g, function(g0, g1) {
                     return '"+' + g1 + '+"';
                 }).replace(/{{(.*?)}}/g, function(g0, g1) {
                     return '"+_e(' + g1 + ')+"';
