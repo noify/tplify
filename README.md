@@ -1,13 +1,13 @@
 # tplify
 
-[![NPM version](https://img.shields.io/npm/v/tpl-js.svg)](https://www.npmjs.com/package/tpl-js)
+[![NPM version](https://img.shields.io/npm/v/tpl-ify.svg)](https://www.npmjs.com/package/tpl-ify)
 
 简易模板引擎
 
 # 安装
 
 ```bash
-$ npm install --save tpl-js
+$ npm install --save tpl-ify
 ```
 或直接使用`build/tplify.min.js`
 
