@@ -1,16 +1,12 @@
 {
   "name": "tpl-ify",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Simple template engine",
   "main": "build/tplify.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "start": "npm run beautify && npm run min",
     "beautify": "uglifyjs src/tplify.js -b -o build/tplify.js",
-    "min": "uglifyjs src/tplify.js -m -o build/tplify.min.js",
-    "test": "node test/node.js"
+    "min": "uglifyjs src/tplify.js -m -o build/tplify.min.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +24,6 @@
   },
   "homepage": "https://github.com/noify/tplify#readme",
   "devDependencies": {
-    "uglify-js": "^3.0.28"
+    "uglify-js": "^3.1.8"
   }
 }
