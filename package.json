@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npm run beautify && npm run min",
     "beautify": "uglifyjs src/tplify.js -b -o build/tplify.js",
-    "min": "uglifyjs src/tplify.js -m -o build/tplify.min.js"
+    "min": "uglifyjs src/tplify.js -m -o build/tplify.min.js",
+    "test": "mocha test/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,8 @@
   },
   "homepage": "https://github.com/noify/tplify#readme",
   "devDependencies": {
-    "uglify-js": "^3.1.8"
+    "uglify-js": "^3.1.8",
+    "mocha": "^4.0.1",
+    "chai": "^4.1.2"
   }
 }

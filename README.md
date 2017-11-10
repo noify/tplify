@@ -1,6 +1,7 @@
 # tplify
 
 [![NPM version](https://img.shields.io/npm/v/tpl-ify.svg)](https://www.npmjs.com/package/tpl-ify)
+[![Build Status](https://travis-ci.org/noify/tplify.svg?branch=master)](https://travis-ci.org/noify/tplify)
 
 简易模板引擎
 
