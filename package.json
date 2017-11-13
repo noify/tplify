@@ -1,6 +1,6 @@
 {
   "name": "tpl-ify",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simple template engine",
   "main": "build/tplify.js",
   "scripts": {

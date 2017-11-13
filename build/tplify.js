@@ -12,7 +12,7 @@
                 return '"+' + g1.replace(/&quot;/g, '"') + '+"';
             }) + '";';
         });
-        return new Function("data", "_e", 'var t="";' + src + "return t;")(data || {}, function(html) {
+        return new Function("d", "_e", 'with(d){var t="";' + src + "return t;}")(data || {}, function(html) {
             return String(html).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#39;").replace(/"/g, "&quot;");
         });
     };

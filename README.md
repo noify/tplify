@@ -5,7 +5,7 @@
 
 简易模板引擎
 
-- 只有十几行代码，压缩后仅 ~0.74kb
+- 只有十几行代码，压缩后仅 ~0.76kb
 - 最低支持 Internet Explorer 6
 
 # 安装
@@ -27,8 +27,8 @@ $ npm install --save tpl-ify
 ```js
 let content = `
 <ul>
-    <% for(var i = 0; i < data.length; i++){
-        var item = data[i];
+    <% for(var i = 0; i < list.length; i++){
+        var item = list[i];
         if(item.weight < 140){%>
             <li>我是{{item.name}}，我喜欢吃大{{item.food}}</li>
         <%}else{%>
@@ -38,14 +38,18 @@ let content = `
 </ul>
 `
 
-let data = [
-    { name: '小红', weight: 132, food: '鸡腿' }, 
-    { name: '明明<p></p>', weight: 139, food: '猪蹄' }, 
-    { name: '<b>楚楚</b>', weight: 141, food: '烧鸭' }
-];
+let data = {
+    list: [
+        { name: '小红', weight: 132, food: '鸡腿' }, 
+        { name: '明明<p></p>', weight: 139, food: '猪蹄' }, 
+        { name: '<b>楚楚</b>', weight: 141, food: '烧鸭' }
+    ]
+};
 
 let result = tplify(content, data)
 ```
+
+result
 
 ```html
 <ul>

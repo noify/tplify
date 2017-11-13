@@ -10,8 +10,8 @@
     <div id="app"></div>
     <script id="content" type="text/html">
         <ul>
-          <% for(var i = 0; i < data.length; i++){
-              var item = data[i];
+          <% for(var i = 0; i < list.length; i++){
+              var item = list[i];
               if(item.weight < 140){%>
                   <li class="low" data-weight='140'>我是{{item.name}}，我喜欢吃大{{item.food}}</li>
               <%}else{%>
@@ -22,11 +22,13 @@
     </script>
     <script src="../src/tplify.js"></script>
     <script>
-        var data = [
-          { name: '小红', weight: 132, food: '鸡腿' }, 
-          { name: '明明<p></p>', weight: 139, food: '猪蹄' }, 
-          { name: '<b>楚楚</b>', weight: 141, food: '烧鸭' }
-        ];
+        var data = {
+            list: [
+                { name: '小红', weight: 132, food: '鸡腿' }, 
+                { name: '明明<p></p>', weight: 139, food: '猪蹄' }, 
+                { name: '<b>楚楚</b>', weight: 141, food: '烧鸭' }
+            ]
+        };
         var template  = document.getElementById('content').innerHTML;
         document.getElementById('app').innerHTML = tplify(template, data);
     </script>
